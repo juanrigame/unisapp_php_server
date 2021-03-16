@@ -23,7 +23,7 @@
 	}
 	// Perform query
 	if(!$password_found || !$matricula_found){
-		echo echo "{\"result\":\"INVALID_CREDENTIALS\"}";
+		echo "{\"result\":\"INVALID_CREDENTIALS\"}";
 		exit;
 	}
 	$user = NULL;
