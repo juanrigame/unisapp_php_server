@@ -12,7 +12,7 @@
 		$user = NULL;
 		$password = $_POST['password'];
 		$mail = $_POST['mail'];
-		if ($result = $mysqli -> query("SELECT * FROM tb_usuario WHERE password ='$password' and email='$mail'")) {
+		if ($result = $mysqli -> query("SELECT * FROM tb_usuario WHERE password ='$password' and email='$mail' and rol=1")) {
 			//echo "Returned rows are: " . $result -> num_rows;
 			// Free result set
 			$user = $result->fetch_row();
