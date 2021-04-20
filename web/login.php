@@ -10,8 +10,10 @@
 			exit();
 		}
 		$user = NULL;
+		//Agregar SQL injection test
 		$password = $_POST['password'];
 		$mail = $_POST['mail'];
+		//Escape html or xml chars
 		if ($result = $mysqli -> query("SELECT * FROM tb_usuario WHERE password ='$password' and email='$mail' and rol=1")) {
 			//echo "Returned rows are: " . $result -> num_rows;
 			// Free result set
