@@ -14,7 +14,19 @@
 		echo "Failed to connect to MySQL: " . $mysqli -> connect_error;
 		exit();
 	}
-	
+	$alert = "";
+	if(isset($_GET['delete'])){
+		if(isset($_GET['matricula']) && $_GET['matricula'] != ""){
+			$matricula = $_GET['matricula'];
+			$sql = "DELETE FROM `tb_usuario` WHERE matricula='$matricula'";
+			if (mysqli_query($mysqli,$sql)) {
+				$alert = "Registro con matrícula $matricula borrado correctamente";
+			}
+			else {
+				$alert = mysqli_error($mysqli);
+			}
+		}
+	}
 	if ($result = $mysqli -> query("SELECT * FROM tb_usuario WHERE rol in (2,3)")) {
 		//echo "Returned rows are: " . $result -> num_rows;
 		// Free result set
@@ -72,6 +84,10 @@
 		.enlace {
 			cursor:hand
 		}
+		.alert{
+			color:green;
+			font-size:20pt
+		}
 	</style>
 </head>
 <body>
@@ -84,6 +100,9 @@
 	</div>
 	<div class="container">
 		<div class="card" style="margin-top:20px">
+			<div class="alert">
+				<?=$alert?>
+			</div>
 			<table class="table">
 				<thead>
 					<tr>
@@ -91,6 +110,7 @@
 						<th scope="col">Nombre</th>
 						<th scope="col">Apellidos</th>
 						<th scope="col">Correo</th>
+						<th scope="col">Rol</th>
 						<th scope="col">Editar</th>
 						<th scope="col">Borrar</th>
 					</tr>
@@ -103,6 +123,7 @@
 							$matricula = $elements[$i][0];
 							$nombre = $elements[$i][2];
 							$apellido = $elements[$i][3];
+							$rol = $elements[$i][4];
 							$email = $elements[$i][5];
 							$borrar_mat = "?delete=t&matricula=".$matricula;
 							$editar_mat = "alta_usuario.php?edit=T&matricula=".$matricula;
@@ -112,6 +133,7 @@
 					<td><?=$nombre?></td>
 					<td><?=$apellido?></td>
 					<td><?=$email?></td>
+					<td><?php if($rol == 2) { echo 'Profesor'; } else { echo 'Alumno';}?></td>
 					<td><a href="<?=$editar_mat?>" class="enlace"><img src="edit.png" alt="Editar" style="height:32px"></td></a>
 					<td><a onclick="confirmar('<?=$borrar_mat?>')" class="enlace"><img src="delete.png" alt="Borrar" style="height:32px"></td></a>
 					</tr>

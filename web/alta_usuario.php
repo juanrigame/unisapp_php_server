@@ -5,6 +5,12 @@
 	else {
 		$user = $_SESSION['user'];
 	}
+	$matricula = "";
+	$nombre = "";
+	$apellido = "";
+	$mail = "";
+	$rol = "";
+	$password = "";
 	if(isset($_POST['submit'])){
 		//try to save the record
 		$matricula = $_POST['matricula'];
@@ -13,6 +19,7 @@
 		$mail = $_POST['mail'];
 		$rol = $_POST['rol'];
 		$password = $_POST['password'];
+		$source = $_POST['source'];
 	/* 	echo "<br>$matricula";
 		echo "<br>$nombre";
 		echo "<br>$apellido";
@@ -25,7 +32,11 @@
 			echo "Failed to connect to MySQL: " . $mysqli -> connect_error;
 			exit();
 		}
-		$sql = "INSERT INTO `tb_usuario` (`matricula`, `password`, `nombre`, `apellido`, `rol`, `email`) VALUES ('$matricula', '$password', '$nombre', '$apellido', $rol, '$mail')";
+		$sql = "";
+		if($source == "new") 
+			$sql = "INSERT INTO `tb_usuario` (`matricula`, `password`, `nombre`, `apellido`, `rol`, `email`) VALUES ('$matricula', '$password', '$nombre', '$apellido', $rol, '$mail')";
+		else 
+			$sql = "UPDATE `tb_usuario` SET `password`='$password', `nombre`='$nombre', `apellido`='$apellido', `rol`= $rol, `email`='$mail' where matricula='$matricula'";
 		if (mysqli_query($mysqli,$sql)) {
 			$success = "TRUE";
 			$matricula = "";
@@ -41,12 +52,31 @@
 		
 	}
 	else {
-		$matricula = "";
-		$nombre = "";
-		$apellido = "";
-		$mail = "";
-		$rol = "";
-		$password = "";
+		$registro = NULL;
+		if(isset($_GET['edit'])){
+			if(isset($_GET['matricula']) && $_GET['matricula'] != ""){
+				require("../ws/conn.php");
+				$mysqli =  new mysqli(host.":".port,user,password,database);
+				if ($mysqli -> connect_errno) {
+					echo "Failed to connect to MySQL: " . $mysqli -> connect_error;
+					exit();
+				}
+				$matricula = $_GET['matricula'];
+				if ($result = $mysqli -> query("SELECT * FROM tb_usuario WHERE matricula = '$matricula'")) {
+					if($element = $result->fetch_row()){
+						$mail = $element[5];
+						$nombre = $element[2];
+						$apellido = $element[3];
+						$password = $element[1];
+						$rol = $element[4];
+					}
+					$result -> free_result();
+				}
+				else {
+					$alert = mysqli_error($mysqli);
+				}
+			}
+		}
 	}
 ?>
 <html> <DOCTYPE html>
@@ -137,9 +167,9 @@
 					<div class="mb-3">
 						<label for="rol" class="form-label">Rol</label>
 						<select class="form-control" id="rol" name="rol" required="required">
-							<option value="" selected="selected">----SELECCIONA UNA OPCIÓN</option>
-							<option value="2">Maestro</option>
-							<option value="3">Alumno</option>
+							<option value="" <?php if($rol==""){ echo "selected=\"selected\""; }?>>----SELECCIONA UNA OPCIÓN</option>
+							<option value="2" <?php if($rol==2){ echo "selected=\"selected\""; }?>>Maestro</option>
+							<option value="3" <?php if($rol==3){ echo "selected=\"selected\""; }?>>Alumno</option>
 						</select>
 						
 						<!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
@@ -156,6 +186,7 @@
 						
 					}
 					?>
+					<input type="hidden" name="source" value="<?php if(isset($_GET['edit'])){ echo "edit"; } else { echo "new"; } ?>"/>
 					<input type="submit" name="submit" class="btn btn-primary" value="Guardar">
 				</form>
 			</div>
